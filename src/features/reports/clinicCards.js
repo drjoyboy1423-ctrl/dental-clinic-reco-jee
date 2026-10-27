@@ -16,7 +16,7 @@ function clinicalItems(p){const d=p.d,L=[],add=(x,o)=>{if(Object.values(o).some(
  (d.presc||[]).forEach(x=>add(x,{dx:x.dx,plan:j('Rx: '+(x.meds||[]).join(', '),x.txt)}));
  (d.lab||[]).forEach(x=>add(x,{ex:j('Lab: '+(x.req||''),x.lab&&'('+x.lab+')',x.done=='Yes'?'done':'ordered')}));
  (d.img||[]).forEach(x=>add(x,{ex:j('X-ray: '+(x.kind||''),x.tooth&&'Tooth/Area '+x.tooth,x.note)}));
- (d.ref||[]).forEach(x=>add(x,{plan:j('Referral',x.to&&'to '+x.to,x.why)}));
+ (d.ref||[]).forEach(x=>add(x,{done:j('Referral',x.to&&'to '+x.to,x.why)}));
  (d.fna||[]).forEach(x=>add(x,{plan:j(x.type=='Biopsy'?'Biopsy':'FNA',x.site,x.note)}));
  return L.sort((a,b)=>a.ts-b.ts)}
 function clinicalSummaryHtml(p){const c=p.d.consent||{ck:[],o:'',t:''},ck=new Set(c.ck||[]),txt=(c.o||'')+' '+((p.d.health||[]).map(x=>x.allergy||'').join(' ')),items=clinicalItems(p),
