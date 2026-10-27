@@ -2,7 +2,7 @@ function sec(p){const k=SK,c=SEC[k],a=p.d[k]||[];
  if(k=='presc')return presc(p);if(k=='consent')return consent(p);
  const sub=k=='inv'?`<p class="text-center text-gray-500 -mt-3 mb-3">${H(p.name)}</p>`:'';
  const sm=k=='inv'&&a.length?(()=>{const T=a.reduce((z,x)=>z+tot(x),0),P=a.reduce((z,x)=>z+(+x.paid||0),0);return `<div class="grid grid-cols-3 gap-2 text-center text-xs mb-4"><div class="bg-red-50 rounded p-2">Billed<br><b class="text-sm">${ETB(T)}</b></div><div class="bg-green-50 rounded p-2">Paid<br><b class="text-sm">${ETB(P)}</b></div><div class="bg-red-50 rounded p-2">Balance<br><b class="text-sm">${ETB(T-P)}</b></div></div>`})():'';
- const extra=k=='rec'?gb('view Dental chart','chart()'):'';
+ const extra=k=='rec'?gb('view Dental chart','chart()')+`<button onclick="recSummaryPrint()" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded"><i class="fa fa-print"></i> Print summary</button>`:'';
  return hd(c.t,extra+gb(c.b+' +',`addI('${k}')`))+sub+sm+(a.length?(k=='img'?gal(a):a.map((x,i)=>iCard(k,x,i)).join('')):`<p class="text-gray-500">${c.e}</p>`)}
 const net=x=>(+x.price||0)*(+x.qty||1)-(+x.disc||0),vatAmt=x=>x.vat==VATO[1]?Math.round(net(x)*15)/100:0,tot=x=>net(x)+vatAmt(x);
 function iCard(k,x,i){const c=SEC[k],ic=(cl,t,a)=>`<i class="fa ${t} ${cl} cursor-pointer" onclick="${a}"></i>`,del=ic('text-rose-600','fa-trash',`delI('${k}',${i})`),ed=ic('text-red-600','fa-pen',`editI('${k}',${i})`);
