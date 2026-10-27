@@ -1,0 +1,12 @@
+function setCur(){if(C){lsSet(K.cc,C.id);try{sessionStorage.setItem(K.cc,C.id)}catch(e){}}}
+function hdr(){calBtn();un.textContent=U.name;av.innerHTML=U.avatar?`<img class="w-full h-full object-cover" src="${U.avatar}">`:'';$('clh').innerHTML=logoH(C,'w-12 h-12')+`<div class="min-w-0"><div class="font-bold text-sm leading-tight break-words">${H(C.name)}</div><div class="text-[11px] text-gray-500">${TYPE(C.type)}</div></div>`}
+function lcInit(){const sel=lsGet(K.s);lc.innerHTML=CL.map(c=>`<option value="${c.id}" ${c.id==sel?'selected':''}>${H(c.name)} (${c.type=='government'?'Government':'Private'})</option>`).join('');selC()}
+function selC(){const c=CL.find(x=>x.id==lc.value)||CL[0];setTheme(c);$('lb').innerHTML=logoH(c,'w-16 h-16 mx-auto')}
+async function login(){le.classList.add('hidden');const b=$('lbtn');if(b.disabled)return;b.disabled=true;
+ try{if(!lp.value.trim()||!lw.value)throw new Error('Enter your username and password.');const u=await DB.signIn(lp.value,lw.value),cid=lc.value;if(u.role!='admin'&&u.clinic!=cid){await DB.signOut();throw new Error('This account does not belong to the selected clinic.')}
+  if(lr.checked)lsSet(K.s,cid);else lsDel(K.s);U=u;await loadClinic(cid);setCur();boot()}catch(e){le.textContent=e.message||'Sign-in failed.';le.classList.remove('hidden')}finally{b.disabled=false}}
+async function logout(){try{await SQ}catch(e){}await DB.signOut();lsDel(K.cc);try{sessionStorage.removeItem(K.cc)}catch(e){}location.reload()}
+function boot(){if(!U||!C)return;login_.classList.add('hidden');app.classList.remove('hidden');hdr();go('dash')}
+async function start(){const ov=$('boot');try{await DB.init();CL=await DB.clinics();lcInit();const p=await DB.profile();if(p){U=p;let cid=sessionStorage.getItem(K.cc)||lsGet(K.cc)||'';if(!CL.some(c=>c.id==cid))cid=U.role=='admin'?(CL[0]||{}).id:U.clinic;await loadClinic(cid);boot()}}
+ catch(e){ov.innerHTML=`<div class="text-center p-6"><p class="mb-3">${H(e.message||'Could not start the app.')}</p><button onclick="location.reload()" class="lg text-white font-semibold px-5 py-2 rounded-xl">Try again</button></div>`;return}
+ ov.style.display='none'}

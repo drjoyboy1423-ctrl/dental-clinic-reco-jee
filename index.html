@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Professional Dental Care Center</title>
+<meta name="description" content="Dental clinic management: patients, appointments, invoices and records.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="src/index.css">
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+<div id="boot" style="position:fixed;inset:0;z-index:90;background:#fff;display:flex;align-items:center;justify-content:center;color:#555;font-size:15px">Loading...</div>
+<div id="login" class="min-h-screen flex items-center justify-center p-4" style="background:var(--cl)">
+ <div class="bg-white rounded-3xl shadow-2xl overflow-hidden flex w-full max-w-5xl">
+  <div class="w-full md:w-1/2 p-8 md:p-12">
+   <div class="text-center mb-8">
+    <div id="lb" class="mb-4"></div>
+    <h1 class="text-3xl font-bold" style="color:var(--cd)">Professional Dental Care Center</h1>
+    <p class="mt-2" style="color:var(--c)">Welcome back! Please sign in to your account.</p></div>
+   <label class="font-medium text-sm" style="color:var(--cd)">Clinic</label>
+    <select id="lc" onchange="selC()" class="inp mt-1 mb-2" style="background:#fff7f7;border-color:#fecaca"></select>
+    <div class="flex items-center justify-between text-xs mb-4" style="color:var(--cd)"><label class="flex items-center gap-1"><input type="checkbox" id="lr" checked> Remember this clinic</label><button onclick="newClinicLogin()" class="underline">+ Create clinic</button></div>
+    <label class="font-medium text-sm" style="color:var(--cd)">Username</label>
+   <input id="lp" class="inp mt-1 mb-4" style="background:#fff7f7;border-color:#fecaca" placeholder="Username or email" autocapitalize="none" autocorrect="off">
+   <label class="font-medium text-sm" style="color:var(--cd)">Password</label>
+   <div class="relative mt-1 mb-6"><input id="lw" type="password" class="inp" style="background:#fff7f7;border-color:#fecaca" placeholder="Enter your password" onkeydown="if(event.key=='Enter')login()">
+    <i class="fa fa-eye absolute right-3 top-3 text-red-500 cursor-pointer" onclick="lw.type=lw.type=='password'?'text':'password'"></i></div>
+   <button id="lbtn" onclick="login()" class="lg w-full text-white font-semibold py-3 rounded-xl shadow"><i class="fa fa-right-to-bracket mr-2"></i>Sign In</button>
+   <p class="text-xs text-center mt-3 text-gray-500">Forgot your password? Ask your clinic admin to reset it under Users.</p><p id="le" class="text-sm text-center mt-3 hidden" style="color:var(--c)">Invalid username or password.</p>
+   <p class="text-center text-sm mt-6 pt-4 border-t border-red-100" style="color:var(--c)">Powered by <b>SmartDent</b></p></div>
+  <div class="hidden md:flex w-1/2 items-center justify-center text-center p-10" style="background:linear-gradient(135deg,var(--c),color-mix(in srgb,var(--c) 60%,white))">
+   <div><div class="text-5xl font-bold" style="color:#ffffff">Professional Dental</div><div class="text-3xl font-light mt-1" style="color:#ffffff">Care Center</div></div></div>
+ </div></div>
+
+<div id="app" class="hidden h-screen flex overflow-hidden">
+ <div id="ov" class="fixed inset-0 bg-black/30 z-30 hidden lg:hidden" onclick="tgl()"></div>
+ <aside id="sb" class="fixed lg:static z-40 inset-y-0 left-0 w-64 bg-white border-r flex flex-col -translate-x-full lg:translate-x-0 transition-transform">
+  <div class="p-4 border-b text-center relative"><i class="fa fa-angles-left absolute left-4 top-4 text-gray-500 cursor-pointer" onclick="tgl()"></i>
+   <div id="clh" class="flex items-center gap-3 mt-6 text-left"></div></div>
+  <nav id="nav" class="flex-1 overflow-auto py-3"></nav>
+  <div class="nv border-t" onclick="logout()"><i class="fa fa-right-from-bracket"></i>Logout</div>
+  <div class="text-center text-xs text-gray-500 py-3 border-t">Powered by <b class="text-red-700">SmartDent</b></div>
+ </aside>
+ <div class="flex-1 flex flex-col min-w-0">
+  <header class="flex items-center gap-3 p-3">
+   <button class="lg:hidden text-gray-600 px-2" onclick="tgl()"><i class="fa fa-bars"></i></button>
+   <div class="relative w-full max-w-xs"><i class="fa fa-search absolute left-3 top-3 text-gray-500"></i><input id="q" oninput="Q=this.value;go('recent')" placeholder="Search patients" class="w-full bg-white rounded-md shadow pl-9 pr-3 py-2"></div>
+   <div class="ml-auto flex items-center gap-3"><div id="av" class="w-9 h-9 rounded-full bg-white overflow-hidden"></div><button id="calbtn" onclick="cycleCal()" class="text-xs border rounded-md px-2 py-1 bg-white text-gray-700 whitespace-nowrap" title="Switch between Ethiopian and Gregorian dates"></button><span id="un" class="text-red-500 text-sm"></span></div>
+  </header>
+  <main id="v" class="flex-1 overflow-auto p-3 md:p-6"></main>
+ </div></div>
+
+<div id="md" class="fixed inset-0 bg-black/40 z-50 hidden items-center justify-center p-4"><div id="mb" class="bg-white rounded-xl p-6 w-full max-w-xl max-h-[90vh] overflow-auto"></div></div>
+
+<script src="src/lib/date.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="src/lib/supabase.js"></script>
+<!-- app code, in load order -->
+<script src="src/config/sections.js"></script>
+<script src="src/store/patientStore.js"></script>
+<script src="src/features/auth/session.js"></script>
+<script src="src/features/clinics/clinics.js"></script>
+<script src="src/app/layout.js"></script>
+<script src="src/features/dashboard/dashboard.js"></script>
+<script src="src/features/patients/newPatient.js"></script>
+<script src="src/features/records/diseaseProcedure.js"></script>
+<script src="src/features/admin/users.js"></script>
+<script src="src/features/auth/profile.js"></script>
+<script src="src/features/patients/patientDetail.js"></script>
+<script src="src/features/records/recordSections.js"></script>
+<script src="src/features/records/invoiceSection.js"></script>
+<script src="src/features/records/consentPrescription.js"></script>
+<script src="src/components/modal.js"></script>
+<script src="src/lib/format.js"></script>
+<script src="src/lib/print.js"></script>
+<script src="src/features/appointments/appointments.js"></script>
+<script src="src/features/dashboard/quickActions.js"></script>
+<script src="src/features/finance/invoiceManager.js"></script>
+<script src="src/features/dashboard/analytics.js"></script>
+<script src="src/features/reports/reportList.js"></script>
+<script src="src/features/finance/expenses.js"></script>
+<script src="src/features/finance/yearlyReport.js"></script>
+<script src="src/features/finance/financePage.js"></script>
+<script src="src/features/reports/printCenter.js"></script>
+<script src="src/features/dev/sampleData.js"></script>
+<script>start();</script>
+</body></html>
