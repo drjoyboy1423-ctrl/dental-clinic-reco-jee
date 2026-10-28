@@ -22,6 +22,8 @@ async function mkClinic(t){const n={...t,id:'c'+Date.now()};delete n.mu;delete n
 function newClinicLogin(){clinicModal({name:'',type:'private',color:'#2563eb',icon:'tooth',logo:null},async t=>{const n=await mkClinic(t);lcInit();lc.value=n.id;selC();cl()},1)}
 function addC(){clinicModal({name:'',type:'private',color:'#2563eb',icon:'tooth',logo:null},async t=>{await mkClinic(t);cl();go('clinics')})}
 function edC(id){const c=CL.find(x=>x.id==id);clinicModal(c,async t=>{const n={...c,...t};await DB.saveClinic(n);Object.assign(c,t);if(c.id==C.id){setTheme(C);hdr()}cl();go('clinics')})}
+/* admin: switch the clinic whose data is shown, staying on the same page */
+async function swCh(id){if(id==C.id)return;try{await SQ}catch(e){}try{const v=V;await loadClinic(id);setCur();hdr();go(['patient','card'].includes(v)?'recent':v)}catch(e){alert(e.message);hdr()}}
 async function swC(id){try{await SQ}catch(e){}try{await loadClinic(id);setCur();hdr();go('dash')}catch(e){alert(e.message)}}
 async function delC(id){const c=CL.find(x=>x.id==id);if(!c||CL.length<2||c.id==C.id)return;if(!confirm('Delete "'+c.name+'" with ALL its patients, records and staff accounts? This cannot be undone.'))return;
  try{await DB.fn('purge_clinic',{clinic:id});await DB.deleteClinic(id);CL=CL.filter(x=>x.id!=id);S.usersLoaded=0;go('clinics')}catch(e){alert(e.message)}}
