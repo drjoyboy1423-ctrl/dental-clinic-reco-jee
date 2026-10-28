@@ -6,6 +6,7 @@ const PRO=[['Scaling & Polishing',1500],['Composite Filling',2000],['Extraction'
 const MEDS=['Amoxicillin 500mg','Metronidazole 400mg','Ibuprofen 400mg','Paracetamol 500mg','Diclofenac 50mg','Chlorhexidine Mouthwash','Augmentin 625mg'];
 const CONS=['Allergies','Anemia','Epilepsy','Asthma','Diabetes Mellitus','Hypertension','Heart Disease','Immune Deficiency','Coagulopathy','Organopathy','Pregnancy','Medications Taken','Bleeding Disorder'];
 const VATO=['No VAT','Add 15% VAT'];
+const RXCAT=['','Orthodontic','Endodontic','Prosthodontic','Periodontic','Operative','Oral surgery (dental trauma)','Maxillofacial'];
 const SEC={
 rec:{t:'Dental Record',b:'New Record',e:'No Dental findings available.',f:[['tooth','Tooth No','sel',["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23", "24", "25", "26", "27", "28", "29", "30", "31", "32", "Full mouth"]],['finding','Diagnosis / Finding','sel',[]],['treat','Treatment','sel',[]],['note','Notes','area']]},
 appt:{t:'Appointments',b:'New Appointment',e:'No appointments available.',f:[['date','Date','date'],['time','Time','time'],['note','Note']]},

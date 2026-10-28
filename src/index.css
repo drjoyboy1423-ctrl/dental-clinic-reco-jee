@@ -23,3 +23,13 @@ body{font-family:'Roboto',sans-serif;-webkit-font-smoothing:antialiased}input,se
 .card,.bg-white.rounded-xl,.bg-white.rounded-3xl{box-shadow:0 1px 3px #0000000d,0 1px 2px #0000000a}
 button,.btn{transition:transform .1s,filter .12s}
 ::-webkit-scrollbar{width:9px;height:9px}::-webkit-scrollbar-thumb{background:color-mix(in srgb,var(--c) 35%,#d1d5db);border-radius:6px}
+/* Comprehensive dental record form */
+.rf-s{border:1px solid #e5e7eb;border-radius:10px;padding:12px;margin-bottom:14px}.rf-s>h3{font-weight:700;font-size:15px;margin-bottom:8px;color:var(--cd,#7f1d1d)}.rf-h{font-weight:700;font-size:13px;margin:12px 0 6px;border-bottom:1px solid #e5e7eb;padding-bottom:2px}
+.rf-x{display:block;margin-bottom:8px}.rf-lb{font-size:12.5px;font-weight:600;color:#374151;margin-bottom:2px}.rf-o{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.rf-chip{display:inline-flex;align-items:center;gap:4px;font-size:13px;background:#f3f4f6;border-radius:999px;padding:3px 10px}.rf-chip input{accent-color:var(--c,#dc2626)}.rf-oth{width:150px;padding:3px 8px;font-size:12px}
+.rf-c{margin:4px 0;padding:4px 8px;border-radius:8px;background:#fafafa}.rf-cb{display:flex;align-items:center;gap:6px;font-size:14px}.rf-sub{margin:6px 0 2px 22px;padding-left:10px;border-left:3px solid #e5e7eb}
+.rf-ln{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}.rf-g{border:1px solid #e5e7eb;border-radius:8px;padding:6px 10px;margin-bottom:8px}.rf-g>summary{cursor:pointer;font-weight:600;font-size:14px}
+table.rf-t{width:100%;border-collapse:collapse;min-width:520px}table.rf-t th,table.rf-t td{border:1px solid #e5e7eb;padding:3px;font-size:12.5px;text-align:left;vertical-align:top}table.rf-t th{background:#f9fafb;padding:5px}table.rf-t .inp{padding:5px 6px;font-size:13px}
+.rf-ch{display:flex;flex-direction:column;gap:6px}.rf-q{display:grid;grid-template-columns:repeat(8,1fr);gap:3px}.rf-th{border:1px solid #9ca3af;border-radius:6px;background:#fff;height:44px;font-size:12px;line-height:14px;padding:2px 0}.rf-th small{display:block;font-size:10px;font-weight:700;min-height:12px}
+.rf-th.st-H{background:#dcfce7}.rf-th.st-C{background:#fecaca}.rf-th.st-F{background:#bfdbfe}.rf-th.st-Cr{background:#fde68a}.rf-th.st-RCT{background:#ddd6fe}.rf-th.st-I{background:#bbf7d0}.rf-th.st-M{background:#d1d5db}
+.rf-un{display:none;font-size:11px;color:#9ca3af;margin-left:6px}.rf-clr{display:inline;font-size:11px;color:#dc2626;margin-left:8px;cursor:pointer}.rf-dt[data-un="1"] .rf-un{display:inline}.rf-dt[data-un="1"] .rf-clr{display:none}

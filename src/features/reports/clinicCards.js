@@ -8,10 +8,12 @@ const clRow=(am,en,val,w)=>`<div class="cl-row"><span class="cl-l">${am?am+' / '
 
 /* ---- patient clinical summary card (Hx, medications, investigations, referral, biopsy, consent) ---- */
 const HXLIST=[['ደም ግፊት','Hypertension',['Hypertension']],['ስኳር በሽታ','Diabetes',['Diabetes Mellitus']],['የደም መፍሰስ ችግር','Bleeding disorder',['Bleeding Disorder','Coagulopathy']],['የሳንባ በሽታ','TB / pneumonia',[],/\btb\b|pneumonia|tuberc/i],['የሚጥ በሽታ','Epilepsy',['Epilepsy']],['የጉበት በሽታ','Hepatitis A, B, C',[],/hepat/i],['ኤችአይቪ/ኤድስ','HIV/AIDS CD4',['Immune Deficiency'],/\bhiv\b|aids/i],['የሚወስደው መድሃኒት ካለ','Any drug taking',['Medications Taken']],['አለርጂ','Allergy',['Allergies']],['እርግዝና (ለሴቶች)','Pregnancy',['Pregnancy']],['ሌላ በሽታ ካለ','Any other disease',['Anemia','Asthma','Heart Disease','Organopathy']]];
+const RFTICK={'Hypertension':f=>f.htn,'Diabetes':f=>f.diab,'Bleeding disorder':f=>f.bleed,'TB / pneumonia':f=>f.tb||hasO(f,'resp','Past TB'),'Epilepsy':f=>hasO(f,'neuro','Epilepsy')||hasO(f,'neuro','Seizures'),'Hepatitis A, B, C':f=>f.hbv||f.hcv||hasO(f,'liver','Hepatitis'),'HIV/AIDS CD4':f=>f.hiv||hasO(f,'immuno','HIV'),'Any drug taking':f=>f.meds,'Allergy':f=>(f.allergy||[]).length,'Pregnancy':f=>f.preg,'Any other disease':f=>f.cvs||f.renal||f.endo||f.autoimm||f.cancer||f.ochr||f.resp};
+const rfTick=(p,n)=>(p.d.rec||[]).some(r=>r.f&&RFTICK[n]&&RFTICK[n](r.f));
 function clinicalItems(p){const d=p.d,L=[],add=(x,o)=>{if(Object.values(o).some(v=>v&&String(v).trim()))L.push(Object.assign({ts:tsOf(x,p),cc:'',ex:'',dx:'',plan:'',done:''},o))},j=(...a)=>a.filter(v=>v!=null&&String(v).trim()!=='').join(' - ');
  (d.health||[]).forEach(x=>add(x,{cc:x.note,ex:j(x.bp&&'BP '+x.bp,x.allergy&&'Allergy: '+x.allergy)}));
  (d.note||[]).forEach(x=>add(x,{cc:j(x.title,x.note)}));
- (d.rec||[]).forEach(x=>add(x,{ex:j(x.tooth&&'Tooth '+x.tooth,x.note),dx:x.finding,done:x.treat}));
+ (d.rec||[]).forEach(x=>add(x,{cc:x.cc,ex:j(x.tooth&&'Tooth '+x.tooth,x.assess,x.invest,x.note),dx:x.finding,plan:j(x.plancat,x.treat),done:x.done}));
  (d.ortho||[]).forEach(x=>add(x,{plan:j('Ortho',x.type,x.note)}));
  (d.presc||[]).forEach(x=>add(x,{dx:x.dx,plan:j('Rx: '+(x.meds||[]).join(', '),x.txt)}));
  (d.lab||[]).forEach(x=>add(x,{ex:j('Lab: '+(x.req||''),x.lab&&'('+x.lab+')',x.done=='Yes'?'done':'ordered')}));
@@ -20,7 +22,7 @@ function clinicalItems(p){const d=p.d,L=[],add=(x,o)=>{if(Object.values(o).some(
  (d.fna||[]).forEach(x=>add(x,{plan:j(x.type=='Biopsy'?'Biopsy':'FNA',x.site,x.note)}));
  return L.sort((a,b)=>a.ts-b.ts)}
 function clinicalSummaryHtml(p){const c=p.d.consent||{ck:[],o:'',t:''},ck=new Set(c.ck||[]),txt=(c.o||'')+' '+((p.d.health||[]).map(x=>x.allergy||'').join(' ')),items=clinicalItems(p),
- on=h=>h[2].some(n=>ck.has(n))||(h[3]&&h[3].test(txt))||(h[1]=='Allergy'&&(p.d.health||[]).some(x=>x.allergy)),
+ on=h=>rfTick(p,h[1])||h[2].some(n=>ck.has(n))||(h[3]&&h[3].test(txt))||(h[1]=='Allergy'&&(p.d.health||[]).some(x=>x.allergy)),
  hx=HXLIST.map(h=>`<div><span>${h[0]} /${h[1]}/</span><span class="cl-bx">${on(h)?'&#10003;':''}</span></div>`).join(''),
  other=[...ck].filter(n=>['Anemia','Asthma','Heart Disease','Organopathy'].includes(n)).join(', '),
  rows=items.map(x=>`<tr><td style="white-space:nowrap">${H(fdate(x.ts))}</td><td>${H(x.cc)}</td><td>${H(x.ex)}</td><td>${H(x.dx)}</td><td>${H(x.plan)}</td><td>${H(x.done)}</td></tr>`).join('')+Array(Math.max(0,8-items.length)).fill('<tr>'+'<td>&nbsp;</td>'.repeat(6)+'</tr>').join('');

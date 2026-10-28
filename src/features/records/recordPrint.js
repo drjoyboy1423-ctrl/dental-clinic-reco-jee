@@ -1,0 +1,36 @@
+/* ---------- Comprehensive Dental Record: printable record (filled, only what was recorded) and blank form (all boxes) ---------- */
+const RP_CSS=()=>`<style>.rp h3{background:#eee;border-left:5px solid ${C.color};padding:3px 8px;font-size:12.5px;margin:12px 0 4px;page-break-after:avoid}.rp h4{font-size:11.5px;margin:7px 0 2px;border-bottom:1px solid #999;page-break-after:avoid}.rp .r{margin:2px 0;line-height:1.45;font-size:11.5px}.rp .ln{display:inline-block;border-bottom:1px solid #444;min-width:120px;height:13px;vertical-align:bottom}.rp .ln.w{min-width:60%}.rp .c{margin:2px 0 2px 10px;font-size:11.5px}.rp .g{border:1px solid #bbb;border-radius:4px;padding:3px 7px;margin:5px 0;page-break-inside:avoid}.rp table{width:100%;border-collapse:collapse;margin:4px 0;page-break-inside:auto}.rp th,.rp td{border:1px solid #666;padding:3px 5px;font-size:11px;text-align:left;vertical-align:top}.rp th{background:#f3f3f3 !important;color:#111 !important}.rp .al{border:2px solid #c00;background:#fff3f3;padding:5px 8px;margin:6px 0;font-size:11.5px}.rp .hit td{background:#ffe9e9;font-weight:bold}.rp .ch{display:grid;grid-template-columns:repeat(16,1fr);gap:0;margin:4px 0}.rp .ch div{border:1px solid #777;text-align:center;font-size:10px;height:30px;line-height:12px;padding-top:2px}.rp .ch div b{display:block;font-size:11px;min-height:12px}.rp .st-C{background:#fde2e2}.rp .st-F{background:#dbeafe}.rp .st-Cr{background:#fef3c7}.rp .st-RCT{background:#ede9fe}.rp .st-I{background:#dcfce7}.rp .st-M{background:#d1d5db}.rp .meta td{border:none;border-bottom:1px solid #444;font-size:12px;padding:3px 4px}.rp .sg{display:flex;gap:30px;margin-top:28px}.rp .sg div{flex:1;border-top:1px solid #333;padding-top:3px;font-size:11.5px}</style>`;
+const rpBox=(on,blank)=>blank?'☐':on?'☒':'☐';
+function rpSubs(f,v,blank){return f.subs.map(s=>rpInline(s,v,blank)).filter(Boolean).join('; ')}
+/* inline text for a field: "Label: value" (filled) or "Label ☐ a ☐ b ____" (blank); '' when nothing recorded */
+function rpInline(f,v,blank){const F=v.f,k=f.k,val=F[k],lb=f.l?f.l+': ':'';
+ if(f.t=='text'||f.t=='area'||f.t=='date')return blank?`${H(lb)}<span class="ln"></span>`:rfEmpty(val)?'':`${H(lb)}<b>${H(f.t=='date'?fdate(val):val)}</b>`;
+ if(f.t=='radio')return blank?`${H(lb)}${f.o.map(o=>'☐ '+H(o)).join(' ')}`:rfEmpty(val)?'':`${H(lb)}<b>${H(val)}</b>`;
+ if(f.t=='multi'){const a=(val||[]).map(o=>o=='Other'&&F[k+'_other']?'Other ('+F[k+'_other']+')':o);return blank?`${H(lb)}${f.o.map(o=>'☐ '+H(o)+(o=='Other'?': ____':'')).join(' ')}`:a.length?`${H(lb)}<b>${H(a.join(', '))}</b>`:''}
+ return ''}
+function rpField(f,v,blank){const F=v.f,k=f.k,val=F[k];
+ switch(f.t){
+ case 'text':case 'area':case 'date':case 'radio':case 'multi':{const s=rpInline(f,v,blank);return s?`<div class="r">${s}${blank&&f.t=='area'?'<div><span class="ln w"></span></div>':''}</div>`:''}
+ case 'yn':return blank?`<div class="r">${H(f.l)}: ☐ No ☐ Yes → specify: <span class="ln"></span></div>`:val?`<div class="r">${H(f.l)}: <b>${H(val)}${val=='Yes'&&F[k+'_s']?' → '+H(F[k+'_s']):''}</b></div>`:'';
+ case 'cond':{const on=!!val,sub=on||blank?rpSubs(f,v,blank):'';return blank||on?`<div class="c">${rpBox(on,blank)} <b>${H(f.l)}</b>${sub?': '+sub:''}</div>`:''}
+ case 'line':{const s=f.fs.map(x=>rpInline(x,v,blank)).filter(Boolean);return s.length?`<div class="r">${s.join(' &nbsp; ')}</div>`:''}
+ case 'grp':{const inner=rpFields(f.fs,v,blank);return inner?`<div class="g"><b>${H(f.l)}</b>${inner}</div>`:''}
+ case 'rows':return rpRows(f,v,blank);
+ case 'chart':return rpChart(v,blank)}
+ return ''}
+function rpFields(fs,v,blank){let out='',pend='';fs.forEach(f=>{if(f.t=='h'){pend=`<h4>${H(f.l)}</h4>`;return}const s=rpField(f,v,blank);if(s){out+=pend+s;pend=''}});return out}
+function rpRows(f,v,blank){const a=v.rows[f.k]||[];if(!blank&&!a.length)return '';const n=blank?Math.max(f.n,3)+1:a.length,rows=Array.from({length:n},(_,i)=>a[i]||{}),num=f.num;
+ let tot=0;const body=rows.map((x,i)=>{tot+=+x.fee||0;return `<tr>${num?`<td>${i+1}</td>`:''}${f.cols.map(c=>`<td>${c[0]=='status'&&blank?'☐ Planned ☐ Done':c[0]=='status'&&x.status?(x.status=='Done'?'☒ Done':'☒ Planned'):H(x[c[0]]||'')}</td>`).join('')}</tr>`}).join('');
+ return `<div class="r"><b>${H(f.l)}</b></div><table><thead><tr>${num?'<th style="width:4%">#</th>':''}${f.cols.map(c=>`<th>${H(c[1])}</th>`).join('')}</tr></thead><tbody>${body}${!blank&&num&&tot?`<tr><td colspan="${f.cols.length}" style="text-align:right"><b>Total fee</b></td><td><b>${ETB(tot)}</b></td></tr>`:''}</tbody></table>`}
+function rpChart(v,blank){const c=v.chart||{};if(!blank&&!Object.keys(c).length)return '';const cell=n=>`<div class="${c[n]?'st-'+c[n]:''}">${n}<b>${blank?'':H(c[n]||'')}</b></div>`;
+ return `<div class="r"><b>UR</b> 18 &rarr; 11 &nbsp;|&nbsp; <b>UL</b> 21 &rarr; 28 (top) &middot; <b>LR</b> 48 &rarr; 41 &nbsp;|&nbsp; <b>LL</b> 31 &rarr; 38 (bottom)</div><div class="ch">${FDI_U.map(cell).join('')}</div><div class="ch">${FDI_L.map(cell).join('')}</div><div class="r" style="font-size:10px">Legend: ${RF_LEG}</div>`}
+function rpGuide(f,blank){const hit=blank?[]:rfAlerts(f).map(g=>g[0]);
+ return `<table><thead><tr><th style="width:24%">Condition</th><th>Important dental action</th></tr></thead><tbody>${RGUIDE.map(g=>`<tr class="${hit.includes(g[0])?'hit':''}"><td>${hit.includes(g[0])?'▶ ':''}${H(g[0])}</td><td>${H(g[1])}</td></tr>`).join('')}</tbody></table><div class="r"><b>${H(RGUIDE_RULE)}</b></div>`}
+function recFullHtml(p,r,blank){const v=blank?{f:{},rows:{},chart:{}}:r.f?{f:r.f,rows:r.rows||{},chart:r.chart||{}}:rfLegacy(r||{}),al=blank?[]:rfAlerts(v.f),line=x=>blank?'<span class="ln"></span>':H(x||'');
+ const meta=`<table class="meta"><tr><td><b>Clinic:</b> ${H(C.name)}</td><td><b>Record No.:</b> ${blank?'<span class="ln"></span>':H(r.no||'')}</td><td><b>Date:</b> ${blank?'<span class="ln"></span>':H(dsp(r))}</td></tr><tr><td><b>Patient:</b> ${blank?'<span class="ln"></span>':H(p.name)}</td><td><b>ID:</b> ${blank?'<span class="ln"></span>':H(p.card)}</td><td><b>Dentist:</b> ${blank?'<span class="ln"></span>':H(r.by||'')}</td></tr>${blank?'':`<tr><td><b>Sex / Age:</b> ${H(p.sex)} / ${H(p.age||'-')}</td><td colspan="2"><b>Phone:</b> ${H(p.phone)}</td></tr>`}</table>`;
+ const alb=al.length||(v.f.alert)?`<div class="al"><b>MEDICAL ALERT</b>${v.f.alert_d?': '+H(v.f.alert_d):''}${al.length?'<br>'+al.map(g=>H(g[0])).join(' &middot; '):''}</div>`:'';
+ const secs=RSEC.map(s=>{const inner=rpFields(s.fs,v,blank);return inner?`<h3>${s.n}. ${H(s.t)}</h3>${inner}`:''}).join('');
+ return PCSS_RP()+docHead('COMPREHENSIVE DENTAL RECORD',blank?'Blank form':'Record '+H(r.no||''))+`<div class="rp">${meta}${alb}${secs}<h3>9. SIGNATURES</h3><div class="sg"><div>Patient/Guardian: ${blank?'':''}<br>Date: </div><div>Dentist: ${blank?'':H(r.by||'')}<br>Date: </div></div><h3 style="page-break-before:${blank?'always':'auto'}">10. CLINICAL ACTION GUIDE FOR CHRONIC &amp; INFECTIOUS DISEASES</h3>${rpGuide(v.f,blank)}</div>`}
+const PCSS_RP=()=>RP_CSS();
+function recPrint(i){const p=gp(),r=p&&p.d.rec&&p.d.rec[i];if(!r)return;printHtml('Dental record - '+p.name,recFullHtml(p,r,false))}
+function recBlankPrint(){printHtml('Comprehensive Dental Record (blank)',recFullHtml({},{},true))}
