@@ -17,7 +17,7 @@ function rfField(f,v){const F=v.f,k=f.k,val=F[k],lab=f.l?`<div class="rf-lb">${H
  switch(f.t){
  case 'h':return `<h4 class="rf-h">${H(f.l)}</h4>`;
  case 'text':return `<label class="rf-x">${lab}<input data-k="${k}" class="inp" value="${H(val||'')}"></label>`;
- case 'area':return `<label class="rf-x">${lab}<textarea data-k="${k}" rows="2" class="inp">${H(val||'')}</textarea></label>`;
+ case 'area':return `<label class="rf-x">${lab}<textarea data-k="${k}" rows="${f.rows||2}" class="inp">${H(val||'')}</textarea></label>`;
  case 'date':return `<div class="rf-x rf-dt" data-un="${val?'':'1'}" onchange="this.dataset.un=''">${lab}<span class="rf-un">not set - choose a date to set it</span><a class="rf-clr" onclick="this.closest('.rf-dt').dataset.un='1'">clear date</a>${dateField('rf_'+k,val)}</div>`;
  case 'radio':return `<div class="rf-x">${lab}<div class="rf-o">${f.o.map(o=>rfChip(k,o,val==o,'radio','rr_'+k)).join('')}</div></div>`;
  case 'multi':return `<div class="rf-x">${lab}<div class="rf-o">${f.o.map(o=>o=='Other'?`<span class="rf-chip">${rfChipIn(k,o,(val||[]).includes(o))} <input data-k="${k}_other" class="inp rf-oth" placeholder="Other..." value="${H(F[k+'_other']||'')}"></span>`:rfChip(k,o,(val||[]).includes(o),'checkbox')).join('')}</div></div>`;

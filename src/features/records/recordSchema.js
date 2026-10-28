@@ -90,6 +90,9 @@ const RSEC=[
 {id:'s8',n:'8',t:'FOLLOW-UP',fs:[rD('next','Next appointment'),rR('recall','Recall',['3 mo','6 mo','12 mo','PRN']),rA('fu','Notes')]}
 ];
 
+/* writing space under every specialty group (4.1 - 4.11) */
+RSEC.find(s=>s.id=='s4').fs.forEach((g,i)=>g.fs.push({...rA('gn'+(i+1),'Notes (write here)'),lines:4,rows:4}));
+
 /* Section 10: clinical action guide. test() decides whether the row applies to the patient (highlighted + shown as an alert). */
 const hasO=(f,k,v)=>!!f[k]&&(f[k+'_o']||[]).includes(v);
 const RGUIDE=[
