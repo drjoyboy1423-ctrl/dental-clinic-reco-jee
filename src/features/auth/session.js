@@ -1,6 +1,6 @@
 function setCur(){if(C){lsSet(K.cc,C.id);try{sessionStorage.setItem(K.cc,C.id)}catch(e){}}}
 function hdr(){calBtn();un.textContent=U.name;av.innerHTML=U.avatar?`<img class="w-full h-full object-cover" src="${U.avatar}">`:'';
- if(isHQ()){$('clh').innerHTML=logoH(HQ,'w-12 h-12')+`<div class="min-w-0"><div class="font-bold text-sm leading-tight break-words" style="color:var(--cd)">${H(HQ.name)}</div><div class="text-[11px] text-gray-500">Welcome, ${H(U.name)}</div></div>`;
+ if(isHQ()){const o=$('clsw');if(o&&o.parentElement&&o.parentElement.id!='clh')o.parentElement.remove();$('clh').innerHTML=logoH(HQ,'w-12 h-12')+`<div class="min-w-0"><div class="font-bold text-sm leading-tight break-words" style="color:var(--cd)">${H(HQ.name)}</div><div class="text-[11px] text-gray-500">Welcome, ${H(U.name)}</div></div>`;
   $('clh').insertAdjacentHTML('afterend',CL.length>1?`<div class="mt-3 text-left"><div class="text-[11px] text-gray-500 mb-0.5">Viewing clinic</div><select id="clsw" onchange="swCh(this.value)" class="w-full text-sm bg-white border rounded px-2 py-1.5" aria-label="View clinic data">${CL.map(c=>`<option value="${H(c.id)}" ${c.id==C.id?'selected':''}>${H(c.name)}</option>`).join('')}</select></div>`:'');return}
  $('clh').innerHTML=logoH(C,'w-12 h-12')+`<div class="min-w-0"><div class="font-bold text-sm leading-tight break-words">${H(C.name)}</div><div class="text-[11px] text-gray-500">${TYPE(C.type)}</div></div>`}
 function lcInit(){const sel=lsGet(K.s);lc.innerHTML=`<option value="__hq" ${sel=='__hq'?'selected':''}>${H(HQ.name)} - Administrator (all clinics)</option>`+CL.map(c=>`<option value="${c.id}" ${c.id==sel?'selected':''}>${H(c.name)} (${c.type=='government'?'Government':'Private'})</option>`).join('');selC()}
@@ -11,7 +11,12 @@ async function login(){le.classList.add('hidden');const b=$('lbtn');if(b.disable
 const RECOV=(location.hash.match(/[#&]recovery=([^&]+)/)||[])[1]||'';
 function forgotPw(){form('Forgot password',[['un','Username']],{un:lp.value||''},async v=>{if(!v.un||!v.un.trim())throw new Error('Enter your username.');const m=await DB.recoverRequest(v.un.trim());toast(m)},'Send reset link')}
 function resetPwForm(){const t=decodeURIComponent(RECOV);try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}form('Set a new password',[['p1','New password (6+ characters)','password'],['p2','Repeat new password','password']],{},async v=>{if((v.p1||'').length<6)throw new Error('Password must be at least 6 characters.');if(v.p1!==v.p2)throw new Error('The two passwords do not match.');await DB.recoverApply(t,v.p1);toast('Password changed. Please sign in.')},'Save password')}
-async function logout(){try{await SQ}catch(e){}await DB.signOut();lsDel(K.cc);try{sessionStorage.removeItem(K.cc)}catch(e){}location.reload()}
+let LOUT=0;
+async function logout(){if(LOUT)return;LOUT=1;const w=(p,ms)=>Promise.race([Promise.resolve(p).catch(()=>{}),new Promise(r=>setTimeout(r,ms))]);
+ try{await w(SQ,2500);await w(DB.signOut(),2500)}catch(e){}
+ try{lsDel(K.cc)}catch(e){}try{sessionStorage.removeItem(K.cc)}catch(e){}
+ try{Object.keys(localStorage).filter(k=>k=='dental_auth'||/^sb-.*-auth-token/.test(k)).forEach(k=>localStorage.removeItem(k))}catch(e){}
+ location.reload()}
 function boot(){if(!U||!C)return;login_.classList.add('hidden');app.classList.remove('hidden');hdr();go('dash')}
 async function start(){const ov=$('boot');try{await DB.init();CL=await DB.clinics();lcInit();const p=RECOV?null:await DB.profile();if(p){U=p;let cid=sessionStorage.getItem(K.cc)||lsGet(K.cc)||'';if(!CL.some(c=>c.id==cid))cid=U.role=='admin'?(CL[0]||{}).id:U.clinic;await loadClinic(cid);boot()}}
  catch(e){ov.innerHTML=`<div class="text-center p-6"><p class="mb-3">${H(e.message||'Could not start the app.')}</p><button onclick="location.reload()" class="lg text-white font-semibold px-5 py-2 rounded-xl">Try again</button></div>`;return}
