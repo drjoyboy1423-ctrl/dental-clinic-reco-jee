@@ -21,6 +21,8 @@ const DB=(()=>{
   async saveClinic(c){ck(await sb.from('clinics').upsert({id:c.id,name:c.name,type:c.type,color:c.color,icon:c.icon,logo:c.logo||null}))},
   async deleteClinic(id){ck(await sb.from('clinics').delete().eq('id',id))},
   async users(){return ck(await sb.from('profiles').select('*').order('created_at'))},
+  async recoverRequest(username){const r=await fetch(SB_URL+'/functions/v1/recover-password',{method:'POST',headers:{'Content-Type':'application/json',apikey:SB_KEY,Authorization:'Bearer '+SB_KEY},body:JSON.stringify({username,origin:location.origin})});const j=await r.json().catch(()=>({}));if(!r.ok||j.error)throw new Error(j.error||'Could not send the email. Try again.');return j.message},
+  async recoverApply(tokenHash,pw){const v=await sb.auth.verifyOtp({token_hash:tokenHash,type:'recovery'});if(v.error)throw new Error('This reset link is invalid or has expired. Request a new one.');const u=await sb.auth.updateUser({password:pw});if(u.error)throw new Error(u.error.message||'Could not set the password.');await sb.auth.signOut()},
   async fn(action,payload){const {data}=await sb.auth.getSession();if(!data.session)throw new Error('Please sign in again.');
    let r;try{r=await fetch(SB_URL+'/functions/v1/manage-users',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+data.session.access_token,apikey:SB_KEY},body:JSON.stringify({action,...payload})})}catch(e){throw new Error('Could not reach the server. Check your internet connection.')}
    const j=await r.json().catch(()=>({}));if(!r.ok||j.error)throw new Error(j.error||'Request failed');return j},
