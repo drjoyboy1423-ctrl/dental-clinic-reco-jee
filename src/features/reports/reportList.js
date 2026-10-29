@@ -14,4 +14,5 @@ const REP=[
 function repOpt(r){const o=RO[r.opt[0]];return o}
 function runRep(id,mode,optOverride){const r=REP.find(x=>x.id==id),o=optOverride!==undefined?optOverride:(r.opt?RO[r.opt[0]]:undefined),d=r.run(o),m=d.money||[],fm=row=>row.map((v,i)=>m.includes(i)&&typeof v=='number'?ETB(v):H(v));
  if(mode=='csv')return csvDl(r.id,d.head,d.rows);
+ if(mode=='pdf')PDFM={name:r.id};
  printHtml(r.t,docHead(r.t,H(d.sub||''))+tbl2(d.head,d.rows.map(fm),d.foot?fm(d.foot):null,m.concat(d.head.map((h,i)=>/^(Total|Paid|Balance|Amount)$/.test(h)?i:-1).filter(i=>i>=0))))}
