@@ -30,12 +30,12 @@ Deno.serve(async (req) => {
     const origin = String(body.origin || "").replace(/\/+$/, "");
     const base = list.includes(origin) ? origin : list[0];
     const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false, autoRefreshToken: false } });
-    const { data: p } = await sb.from("profiles").select("id,name,email,username").eq("username", username).maybeSingle();
+    const { data: p } = await sb.from("profiles").select("id,name,email,username").ilike("username", username.replace(/[_%]/g, (c) => "\\" + c)).maybeSingle();
     const to = String(p?.email || "").trim();
-    if (!p || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)) return json(OK);
-    const { data: g, error } = await sb.auth.admin.generateLink({ type: "recovery", email: `${username}@dental.app` });
+    if (!p || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)) { console.log("recover: no profile/email for", username); return json(OK); }
+    const { data: g, error } = await sb.auth.admin.generateLink({ type: "recovery", email: `${String(p.username).toLowerCase()}@dental.app` });
     const th = g?.properties?.hashed_token;
-    if (error || !th) return json(OK);
+    if (error || !th) { console.log("recover: generateLink failed", error?.message); return json(OK); }
     const link = `${base}/#recovery=${encodeURIComponent(th)}`;
     const r = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
         html: `<p>Hello ${esc(p.name || username)},</p><p>We received a request to reset the password for <b>${esc(username)}</b>.</p><p><a href="${link}" style="background:#1e3a8a;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none">Choose a new password</a></p><p>This link works once and expires soon. If you did not ask for this, ignore this email.</p>`,
       }),
     });
-    if (!r.ok) return json({ error: "The email could not be sent. Ask your admin to reset your password." }, 502);
+    if (!r.ok) { console.log("recover: resend", r.status, await r.text()); return json({ error: "The email could not be sent. Ask your admin to reset your password." }, 502); }
     return json(OK);
   } catch (_e) {
     return json({ error: "Something went wrong. Try again." }, 400);
