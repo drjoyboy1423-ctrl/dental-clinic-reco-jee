@@ -18,7 +18,7 @@ const DB=(()=>{
    await Promise.all(upd.map(async p=>ck(await sb.from('patients').update({data:p,updated_at:now}).eq('id',p.id))));
    if(del.length)ck(await sb.from('patients').delete().in('id',del.map(Number)))},
   async saveList(cid,kind,data){ck(await sb.from('clinic_lists').upsert({clinic:cid,kind,data,updated_at:new Date().toISOString()}))},
-  async saveClinic(c){ck(await sb.from('clinics').upsert({id:c.id,name:c.name,type:c.type,color:c.color,icon:c.icon,logo:c.logo||null}))},
+  async saveClinic(c){ck(await sb.from('clinics').upsert({id:c.id,name:c.name,type:c.type,color:c.color,icon:c.icon,logo:c.logo||null,name_am:c.name_am||null,phone:c.phone||null,address:c.address||null}))},
   async deleteClinic(id){ck(await sb.from('clinics').delete().eq('id',id))},
   async users(){return ck(await sb.from('profiles').select('*').order('created_at'))},
   async recoverRequest(username){const r=await fetch(SB_URL+'/functions/v1/recover-password',{method:'POST',headers:{'Content-Type':'application/json',apikey:SB_KEY,Authorization:'Bearer '+SB_KEY},body:JSON.stringify({username,origin:location.origin})});const j=await r.json().catch(()=>({}));if(!r.ok||j.error)throw new Error(j.error||'Could not send the email. Try again.');return j.message},
