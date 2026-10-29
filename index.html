@@ -17,15 +17,15 @@
    <div class="text-center mb-8">
     <div id="lb" class="mb-4"></div>
     <h1 class="text-3xl font-bold" style="color:var(--cd)">Professional Dental Care Center</h1>
-    <p class="mt-2" style="color:var(--c)">Welcome back! Please sign in to your account.</p></div>
+    <p id="lwel" class="mt-2" style="color:var(--c)">Welcome back! Please sign in to your account.</p></div>
    <label class="font-medium text-sm" style="color:var(--cd)">Clinic</label>
-    <select id="lc" onchange="selC()" class="inp mt-1 mb-2" style="background:#fff7f7;border-color:#fecaca"></select>
+    <select id="lc" onchange="selC()" class="inp mt-1 mb-2" style="background:color-mix(in srgb,var(--c) 6%,white);border-color:color-mix(in srgb,var(--c) 28%,white)"></select>
     <div class="flex items-center justify-between text-xs mb-4" style="color:var(--cd)"><label class="flex items-center gap-1"><input type="checkbox" id="lr" checked> Remember this clinic</label><button onclick="newClinicLogin()" class="underline">+ Create clinic</button></div>
     <label class="font-medium text-sm" style="color:var(--cd)">Username</label>
-   <input id="lp" class="inp mt-1 mb-4" style="background:#fff7f7;border-color:#fecaca" placeholder="Username or email" autocapitalize="none" autocorrect="off">
+   <input id="lp" class="inp mt-1 mb-4" style="background:color-mix(in srgb,var(--c) 6%,white);border-color:color-mix(in srgb,var(--c) 28%,white)" placeholder="Username or email" autocapitalize="none" autocorrect="off">
    <label class="font-medium text-sm" style="color:var(--cd)">Password</label>
-   <div class="relative mt-1 mb-6"><input id="lw" type="password" class="inp" style="background:#fff7f7;border-color:#fecaca" placeholder="Enter your password" onkeydown="if(event.key=='Enter')login()">
-    <i class="fa fa-eye absolute right-3 top-3 text-red-500 cursor-pointer" onclick="lw.type=lw.type=='password'?'text':'password'"></i></div>
+   <div class="relative mt-1 mb-6"><input id="lw" type="password" class="inp" style="background:color-mix(in srgb,var(--c) 6%,white);border-color:color-mix(in srgb,var(--c) 28%,white)" placeholder="Enter your password" onkeydown="if(event.key=='Enter')login()">
+    <i class="fa fa-eye absolute right-3 top-3 cursor-pointer" style="color:var(--c)" onclick="lw.type=lw.type=='password'?'text':'password'"></i></div>
    <button id="lbtn" onclick="login()" class="lg w-full text-white font-semibold py-3 rounded-xl shadow"><i class="fa fa-right-to-bracket mr-2"></i>Sign In</button>
    <p class="text-xs text-center mt-3 text-gray-500">Forgot your password? Ask your clinic admin to reset it under Users.</p><p id="le" class="text-sm text-center mt-3 hidden" style="color:var(--c)">Invalid username or password.</p>
    <p class="text-center text-sm mt-6 pt-4 border-t border-red-100" style="color:var(--c)">Powered by <b>SmartDent</b></p></div>
@@ -40,7 +40,7 @@
    <div id="clh" class="flex items-center gap-3 mt-6 text-left"></div></div>
   <nav id="nav" class="flex-1 overflow-auto py-3"></nav>
   <div class="nv border-t" onclick="logout()"><i class="fa fa-right-from-bracket"></i>Logout</div>
-  <div class="text-center text-xs text-gray-500 py-3 border-t">Powered by <b class="text-red-700">SmartDent</b></div>
+  <div class="text-center text-xs text-gray-500 py-3 border-t">Powered by <b style="color:var(--cd)">SmartDent</b></div>
  </aside>
  <div class="flex-1 flex flex-col min-w-0">
   <header class="flex items-center gap-3 p-3">

@@ -11,11 +11,14 @@ S={users:[],usersLoaded:0,patients:[],dis:[],proc:[]};
 let SNAP=new Map(),SNAPL={dis:'',proc:'',fin:''},SQ=Promise.resolve(),SERR=0;
 const stab=o=>JSON.stringify(o,(k,v)=>v&&typeof v=='object'&&!Array.isArray(v)?Object.keys(v).sort().reduce((a,x)=>(a[x]=v[x],a),{}):v);
 const clName=id=>id=='all'?'All clinics':(CL.find(c=>c.id==id)||{name:'-'}).name;
-function setTheme(c){const r=document.documentElement.style;r.setProperty('--c',c.color);r.setProperty('--cd',`color-mix(in srgb,${c.color} 60%,black)`);r.setProperty('--cl',`color-mix(in srgb,${c.color} 10%,white)`)}
+/* Head office (administrator) identity: its own name, logo and colour, different from every clinic */
+const HQ={id:'__hq',name:'Professional Dental Care Center',color:'#1e3a8a',icon:'tooth',logo:null,type:'hq'};
+const isHQ=()=>!!U&&U.role=='admin';
+function setTheme(c){if(isHQ())c=HQ;const r=document.documentElement.style;r.setProperty('--c',c.color);r.setProperty('--cd',`color-mix(in srgb,${c.color} 60%,black)`);r.setProperty('--cl',`color-mix(in srgb,${c.color} 10%,white)`)}
 const migrate=(p,i)=>{p.card??=(p.cardNo&&p.cardNo!='N/A'?p.cardNo:i+1);p.doc??=p.doctor||'';p.doctor??=p.doc;p.date=typeof p.date=='number'?p.date:(Date.parse(p.date)||Date.now());p.arr??=p.date;p.st??='new';p.fin??=false;p.d??={}};
 function applyData(d){S.patients=d.patients||[];S.patients.forEach(migrate);S.dis=d.dis||DIS.map((n,i)=>({id:i+1,name:n,date:'12/3/2025'}));S.proc=d.proc||PRO.map((x,i)=>({id:i+1,n:x[0],p:x[1]}));S.fin=d.fin||{sal:[],exp:[]};S.fin.sal=S.fin.sal||[];S.fin.exp=S.fin.exp||[];
  SNAP=new Map(S.patients.map(p=>[String(p.id),stab(p)]));SNAPL={dis:stab(S.dis),proc:stab(S.proc),fin:stab(S.fin)};ensureInvNos();if(S.patients.some(p=>SNAP.get(String(p.id))!==stab(p)))sv()}
-async function loadClinic(id){C=CL.find(c=>c.id==id)||CL[0];applyData(await DB.loadClinicData(C.id));setTheme(C);document.title=C.name}
+async function loadClinic(id){C=CL.find(c=>c.id==id)||CL[0];applyData(await DB.loadClinicData(C.id));setTheme(C);document.title=isHQ()?HQ.name:C.name}
 function toast(m,ok){let t=$('toast');if(!t){t=document.createElement('div');t.id='toast';t.setAttribute('role','status');t.style.cssText='position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:80;max-width:92vw;padding:10px 16px;border-radius:10px;color:#fff;font-size:14px;box-shadow:0 4px 14px #0004';document.body.appendChild(t)}t.style.background=ok?'#15803d':'#b91c1c';t.textContent=m;t.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(()=>t.style.display='none',ok?1800:6000)}
 function sv(){SQ=SQ.then(syncNow).then(()=>{if(SERR){SERR=0;toast('Saved',1)}},e=>{SERR=1;toast('Could not save: '+(e.message||e)+'. Your changes will retry on the next save.')})}
 async function syncNow(){if(!C||!U)return;const cid=C.id,cur=new Map(S.patients.map(p=>[String(p.id),stab(p)])),ins=[],upd=[],del=[];
