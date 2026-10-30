@@ -53,6 +53,14 @@ Deno.serve(async (req) => {
       return c?.name ?? null;
     };
 
+    // Is this username already used by someone else in that clinic?
+    const taken = async (clinic: string, username: string, exceptId?: string) => {
+      let q = sb.from("profiles").select("id").eq("clinic", clinic).ilike("username", username.replace(/[_%]/g, (c) => "\\" + c));
+      if (exceptId) q = q.neq("id", exceptId);
+      const { data } = await q.limit(1);
+      return !!(data && data.length);
+    };
+
     if (action === "create") {
       const username = String(body.username || "").trim();
       const password = String(body.password || "");
@@ -64,6 +72,7 @@ Deno.serve(async (req) => {
       const clinic = role === "admin" ? "all" : isAdmin ? String(body.clinic || "") : me.clinic;
       const cname = await clinicName(clinic);
       if (!cname) return fail("Choose a valid clinic.");
+      if (await taken(clinic, username)) return fail("The username \"" + username + "\" is already used in " + cname + ". Choose a different username for this clinic.");
       const { data: created, error } = await sb.auth.admin.createUser({
         email: emailOf(username, clinic), password, email_confirm: true,
       });
@@ -102,8 +111,9 @@ Deno.serve(async (req) => {
         const nu = body.username ? String(body.username).trim() : t.username;
         if (nu !== t.username && !USERNAME.test(nu)) return fail("Username must be 3-30 letters, numbers, dots, dashes or underscores.");
         if (nu !== t.username || clinic !== t.clinic) {
+          if (await taken(clinic, nu, t.id)) return fail("The username \"" + nu + "\" is already used in " + cname + ". Change this user's username first, then move or save.");
           const { error } = await sb.auth.admin.updateUserById(t.id, { email: emailOf(nu, clinic) });
-          if (error) return fail(/already/i.test(error.message) ? "Username already exists in that clinic." : error.message);
+          if (error) return fail(/already|registered|exists|updating user/i.test(error.message) ? "That username is already used in the chosen clinic." : error.message);
           patch.username = nu;
         }
       }
