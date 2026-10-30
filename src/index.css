@@ -81,3 +81,4 @@ html.dark #login .bg-white{background-color:#162033!important}
 html.dark #md>div,html.dark #mb{background-color:#162033;color:#e2e8f0}
 html.dark [style*="background:#fff"],html.dark [style*="background: #fff"],html.dark [style*="background:white"]{background-color:#162033!important;color:#e2e8f0!important}
 html.dark img{filter:brightness(.92)}html.dark .xray,html.dark canvas{filter:none}
+html.dark #un,html.dark header,html.dark header span{color:#e2e8f0!important}
