@@ -20,7 +20,8 @@
     <p id="lwel" class="mt-2" style="color:var(--c)">Welcome back! Please sign in to your account.</p></div>
    <label class="font-medium text-sm" style="color:var(--cd)">Clinic</label>
     <select id="lc" onchange="selC()" class="inp mt-1 mb-2" style="background:color-mix(in srgb,var(--c) 6%,white);border-color:color-mix(in srgb,var(--c) 28%,white)"></select>
-    <div class="flex items-center justify-between text-xs mb-4" style="color:var(--cd)"><label class="flex items-center gap-1"><input type="checkbox" id="lr" checked> Remember this clinic</label><button id="lnc" onclick="newClinicLogin()" class="underline" style="display:none">+ Create clinic</button></div>
+    <div id="lchips" class="flex flex-wrap gap-2 mb-2"></div>
+    <div class="flex items-center justify-between text-xs mb-4 gap-2 flex-wrap" style="color:var(--cd)"><label class="flex items-center gap-1"><input type="checkbox" id="lr" checked> Remember this clinic</label><label class="flex items-center gap-1"><input type="checkbox" id="lru" checked> Remember my username</label><button id="lnc" onclick="newClinicLogin()" class="underline" style="display:none">+ Create clinic</button></div>
     <label class="font-medium text-sm" style="color:var(--cd)">Username</label>
    <input id="lp" autocomplete="username" enterkeyhint="next" class="inp mt-1 mb-4" style="background:color-mix(in srgb,var(--c) 6%,white);border-color:color-mix(in srgb,var(--c) 28%,white)" placeholder="Username or email" autocapitalize="none" autocorrect="off">
    <label class="font-medium text-sm" style="color:var(--cd)">Password</label>
