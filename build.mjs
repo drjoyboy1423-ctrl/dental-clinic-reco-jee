@@ -34,3 +34,5 @@ mkdirSync('dist', { recursive: true });
 writeFileSync('dist/index.html', html);
 for (const f of ['favicon.svg', 'robots.txt', 'manifest.webmanifest', 'sw.js', 'icon-192.png', 'icon-512.png']) if (existsSync(f)) copyFileSync(f, 'dist/' + f);
 console.log('dist/index.html', Buffer.byteLength(html), 'bytes');
+import { mkdirSync } from 'node:fs';
+if (existsSync('well-known/assetlinks.json')) { mkdirSync('dist/.well-known', { recursive: true }); copyFileSync('well-known/assetlinks.json', 'dist/.well-known/assetlinks.json'); }
