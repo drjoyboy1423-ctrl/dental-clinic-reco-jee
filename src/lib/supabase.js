@@ -8,13 +8,13 @@ const DB=(()=>{
  return {
   async init(){if(!window.supabase)throw new Error('Could not load the sign-in library. Check your internet connection.');sb=window.supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:true,autoRefreshToken:true,storageKey:'dental_auth'},global:{fetch:(u,o)=>{o=o||{};if(o.headers&&typeof o.headers.entries=='function'&&!Array.isArray(o.headers))o={...o,headers:Object.fromEntries(o.headers.entries())};return fetch(u,o)}}})},
   async clinics(){return ck(await sb.from('clinics').select('*').order('created_at'))},
-  async profile(){const {data}=await sb.auth.getSession();if(!data.session)return null;const r=await sb.from('profiles').select('*').eq('id',data.session.user.id).maybeSingle();if(r.error||!r.data){await sb.auth.signOut();return null}return prof(r.data)},
+  async profile(){const {data}=await sb.auth.getSession();if(!data.session)return null;const r=await sb.from('profiles').select('*').eq('id',data.session.user.id).maybeSingle();if(r.error)throw new Error(r.error.message||'Network error');if(!r.data){await sb.auth.signOut();return null}return prof(r.data)},
   async signIn(username,password){const r=await sb.auth.signInWithPassword({email:email(username),password});if(r.error)throw new Error('Invalid username or password.');const p=await sb.from('profiles').select('*').eq('id',r.data.user.id).maybeSingle();if(p.error||!p.data){await sb.auth.signOut();throw new Error('This account has no profile. Ask your admin.')}return prof(p.data)},
   async token(){const {data}=await sb.auth.getSession();return data.session?data.session.access_token:null},
   async signOut(){try{await sb.auth.signOut()}catch(e){}},
   async loadClinicData(cid){const [p,l]=await Promise.all([sb.from('patients').select('id,data').eq('clinic',cid).limit(5000),sb.from('clinic_lists').select('kind,data').eq('clinic',cid)]);const pr=ck(p),ls=ck(l),o={dis:null,proc:null};ls.forEach(x=>o[x.kind]=x.data);return {patients:pr.map(r=>r.data),dis:o.dis,proc:o.proc}},
   async savePatients(cid,ins,upd,del){const now=new Date().toISOString();
-   if(ins.length)ck(await sb.from('patients').insert(ins.map(p=>({id:p.id,clinic:cid,data:p,updated_at:now}))));
+   if(ins.length){const r=await sb.from('patients').insert(ins.map(p=>({id:p.id,clinic:cid,data:p,updated_at:now})));if(r.error){if(/duplicate|23505/i.test((r.error.message||'')+(r.error.code||''))){await Promise.all(ins.map(async p=>ck(await sb.from('patients').update({data:p,updated_at:now}).eq('id',p.id))))}else ck(r)}}
    await Promise.all(upd.map(async p=>ck(await sb.from('patients').update({data:p,updated_at:now}).eq('id',p.id))));
    if(del.length)ck(await sb.from('patients').delete().in('id',del.map(Number)))},
   async saveList(cid,kind,data){ck(await sb.from('clinic_lists').upsert({clinic:cid,kind,data,updated_at:new Date().toISOString()}))},

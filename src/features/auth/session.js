@@ -12,8 +12,9 @@ const RECOV=(location.hash.match(/[#&]recovery=([^&]+)/)||[])[1]||'';
 function forgotPw(){form('Forgot password',[['un','Username']],{un:lp.value||''},async v=>{if(!v.un||!v.un.trim())throw new Error('Enter your username.');const m=await DB.recoverRequest(v.un.trim());toast(m)},'Send reset link')}
 function resetPwForm(){const t=decodeURIComponent(RECOV);try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}form('Set a new password',[['p1','New password (6+ characters)','password'],['p2','Repeat new password','password']],{},async v=>{if((v.p1||'').length<6)throw new Error('Password must be at least 6 characters.');if(v.p1!==v.p2)throw new Error('The two passwords do not match.');await DB.recoverApply(t,v.p1);toast('Password changed. Please sign in.')},'Save password')}
 let LOUT=0;
-async function logout(){if(LOUT)return;LOUT=1;const w=(p,ms)=>Promise.race([Promise.resolve(p).catch(()=>{}),new Promise(r=>setTimeout(r,ms))]);
+async function logout(){if(LOUT)return;if(typeof offLogoutOk=='function'&&!(await offLogoutOk()))return;LOUT=1;const w=(p,ms)=>Promise.race([Promise.resolve(p).catch(()=>{}),new Promise(r=>setTimeout(r,ms))]);
  try{await w(SQ,2500);await w(DB.signOut(),2500)}catch(e){}
+ try{if(typeof offWipe=='function')await offWipe()}catch(e){}
  try{lsDel(K.cc)}catch(e){}try{sessionStorage.removeItem(K.cc)}catch(e){}
  try{Object.keys(localStorage).filter(k=>k=='dental_auth'||/^sb-.*-auth-token/.test(k)).forEach(k=>localStorage.removeItem(k))}catch(e){}
  location.reload()}
