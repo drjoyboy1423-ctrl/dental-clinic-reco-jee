@@ -16,3 +16,9 @@ function settingsPage(){const tm=thGet(),cm=CALM_,inst=(typeof INSTALL_EV!='unde
  card('<h3 class="font-bold mb-1"><i class="fa fa-right-from-bracket mr-2"></i>Session</h3>','<button onclick="logout()" class="px-4 py-2 rounded-md bg-red-600 text-white text-sm">Log out</button><p class="text-xs text-gray-500 mt-2">Logging out also removes the offline copy of patient data from this device.</p>')}
 async function setSync(){try{await SQ;if(typeof refresh=='function')await refresh();toast('Up to date',1)}catch(e){toast('Could not sync: '+(e.message||e))}}
 thApply();
+
+/* Admin: always show which clinic's data is on screen (the admin views one clinic at a time) */
+const ADM_NOBAN=['clinics','users','crep','settings','profile'];
+function admBanner(){const v=$('v');if(!v||!U||U.role!='admin'||!C||ADM_NOBAN.includes(V))return;const old=$('admban');if(old)old.remove();
+ v.insertAdjacentHTML('afterbegin',`<div id="admban" class="flex items-center gap-2 mb-3 rounded-lg px-3 py-2 text-sm text-white" style="background:${H(C.color||'#1e3a8a')}"><span>Viewing clinic:</span><b class="truncate">${H(C.name)}</b><button onclick="go('clinics')" class="ml-auto underline text-xs whitespace-nowrap">Switch clinic</button></div>`)}
+const _go2=go;go=function(){const r=_go2.apply(this,arguments);try{admBanner()}catch(e){}return r};
