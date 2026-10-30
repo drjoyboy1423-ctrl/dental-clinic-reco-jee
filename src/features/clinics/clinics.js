@@ -23,8 +23,8 @@ async function cmSave(auth){const t=CT;if(!t.name||!t.name.trim())return bad('Cl
   try{await CK(t)}finally{if(auth)await DB.signOut()}}catch(e){alert(e.message||'Could not save the clinic.');if(sb)sb.disabled=false}}
 async function mkClinic(t){const n={...t,id:'c'+Date.now()};delete n.mu;delete n.mp;await DB.saveClinic(n);if(t.mu&&t.mp){try{await DB.fn('create',{username:t.mu.trim(),password:t.mp.trim(),role:'manager',clinic:n.id,name:'Manager'})}catch(e){alert('The clinic was created, but the manager account failed: '+e.message)}}CL.push(n);return n}
 function newClinicLogin(){clinicModal({name:'',type:'private',color:'#2563eb',icon:'tooth',logo:null},async t=>{const n=await mkClinic(t);lcInit();lc.value=n.id;selC();cl()},1)}
-function addC(){clinicModal({name:'',type:'private',color:'#2563eb',icon:'tooth',logo:null},async t=>{await mkClinic(t);cl();go('clinics')})}
-function edC(id){const c=CL.find(x=>x.id==id);clinicModal(c,async t=>{const n={...c,...t};await DB.saveClinic(n);Object.assign(c,t);if(c.id==C.id){setTheme(C);hdr()}cl();go('clinics')})}
+function addC(){if(!U||U.role!='admin')return bad('Only the system administrator can create a clinic.');clinicModal({name:'',type:'private',color:'#2563eb',icon:'tooth',logo:null},async t=>{await mkClinic(t);cl();go('clinics')})}
+function edC(id){if(!U||U.role!='admin')return bad('Only the system administrator can edit a clinic.');const c=CL.find(x=>x.id==id);clinicModal(c,async t=>{const n={...c,...t};await DB.saveClinic(n);Object.assign(c,t);if(c.id==C.id){setTheme(C);hdr()}cl();go('clinics')})}
 /* admin: switch the clinic whose data is shown, staying on the same page */
 async function swCh(id){if(id==C.id)return;try{await SQ}catch(e){}try{const v=V;await loadClinic(id);setCur();hdr();go(['patient','card'].includes(v)?'recent':v)}catch(e){alert(e.message);hdr()}}
 async function swC(id){try{await SQ}catch(e){}try{await loadClinic(id);setCur();hdr();go('dash')}catch(e){alert(e.message)}}

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#dc2626"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="format-detection" content="telephone=no">
+<html lang="en"><head><meta charset="UTF-8"><script>try{var t=localStorage.getItem("dental_theme");if(t=="dark"||(t!="light"&&matchMedia("(prefers-color-scheme: dark)").matches))document.documentElement.classList.add("dark")}catch(e){}</script><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#dc2626"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default"><meta name="format-detection" content="telephone=no">
 <title>Professional Dental Care Center</title>
 <meta name="description" content="Dental clinic management: patients, appointments, invoices and records.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icon-192.png">
@@ -20,7 +20,7 @@
     <p id="lwel" class="mt-2" style="color:var(--c)">Welcome back! Please sign in to your account.</p></div>
    <label class="font-medium text-sm" style="color:var(--cd)">Clinic</label>
     <select id="lc" onchange="selC()" class="inp mt-1 mb-2" style="background:color-mix(in srgb,var(--c) 6%,white);border-color:color-mix(in srgb,var(--c) 28%,white)"></select>
-    <div class="flex items-center justify-between text-xs mb-4" style="color:var(--cd)"><label class="flex items-center gap-1"><input type="checkbox" id="lr" checked> Remember this clinic</label><button onclick="newClinicLogin()" class="underline">+ Create clinic</button></div>
+    <div class="flex items-center justify-between text-xs mb-4" style="color:var(--cd)"><label class="flex items-center gap-1"><input type="checkbox" id="lr" checked> Remember this clinic</label><button id="lnc" onclick="newClinicLogin()" class="underline" style="display:none">+ Create clinic</button></div>
     <label class="font-medium text-sm" style="color:var(--cd)">Username</label>
    <input id="lp" autocomplete="username" enterkeyhint="next" class="inp mt-1 mb-4" style="background:color-mix(in srgb,var(--c) 6%,white);border-color:color-mix(in srgb,var(--c) 28%,white)" placeholder="Username or email" autocapitalize="none" autocorrect="off">
    <label class="font-medium text-sm" style="color:var(--cd)">Password</label>
@@ -46,7 +46,7 @@
   <header class="flex items-center gap-3 p-3">
    <button class="lg:hidden text-gray-600 px-2" onclick="tgl()"><i class="fa fa-bars"></i></button>
    <div class="relative w-full max-w-xs"><i class="fa fa-search absolute left-3 top-3 text-gray-500"></i><input id="q" type="search" enterkeyhint="search" autocomplete="off" oninput="Q=this.value;go('recent')" placeholder="Search patients" class="w-full bg-white rounded-md shadow pl-9 pr-3 py-2"></div>
-   <div class="ml-auto flex items-center gap-3"><div id="av" class="w-9 h-9 rounded-full bg-white overflow-hidden"></div><button id="calbtn" onclick="cycleCal()" class="text-xs border rounded-md px-2 py-1 bg-white text-gray-700 whitespace-nowrap" title="Switch between Ethiopian and Gregorian dates"></button><span id="un" class="text-red-500 text-sm"></span></div>
+   <div class="ml-auto flex items-center gap-3"><div id="av" class="w-9 h-9 rounded-full bg-white overflow-hidden"></div><button id="calbtn" onclick="go('settings')" class="border rounded-full w-9 h-9 bg-white text-gray-700" title="Settings" aria-label="Settings"><i class="fa fa-gear"></i></button><span id="un" class="text-red-500 text-sm"></span></div>
   </header>
   <main id="v" class="flex-1 overflow-auto p-3 md:p-6"></main>
  </div></div>
@@ -64,6 +64,7 @@
 <script src="src/app/layout.js"></script>
 <script src="src/app/mobile.js"></script>
 <script src="src/app/offline.js"></script>
+<script src="src/app/settings.js"></script>
 <script src="src/features/dashboard/dashboard.js"></script>
 <script src="src/features/patients/newPatient.js"></script>
 <script src="src/features/records/diseaseProcedure.js"></script>
