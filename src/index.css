@@ -82,3 +82,11 @@ html.dark #md>div,html.dark #mb{background-color:#162033;color:#e2e8f0}
 html.dark [style*="background:#fff"],html.dark [style*="background: #fff"],html.dark [style*="background:white"]{background-color:#162033!important;color:#e2e8f0!important}
 html.dark img{filter:brightness(.92)}html.dark .xray,html.dark canvas{filter:none}
 html.dark #un,html.dark header,html.dark header span{color:#e2e8f0!important}
+/* dark mode: sign-in page colours (titles, labels, links were dark on dark) */
+html.dark #login{--cd:color-mix(in srgb,var(--c) 30%,white);--cl:color-mix(in srgb,var(--c) 22%,#0b1220);background:radial-gradient(circle at 15% 15%,color-mix(in srgb,var(--c) 30%,#0b1220),#0b1220 70%)!important}
+html.dark #login h1,html.dark #login h2,html.dark #login label,html.dark #login button.underline,html.dark #login p,html.dark #login #lwel,html.dark #login [style*="--cd"]{color:#e2e8f0!important}
+html.dark #login .text-gray-500,html.dark #login .text-gray-600{color:#a5b4cc!important}
+html.dark #login #lr,html.dark #login #lru{accent-color:var(--c)}
+html.dark #login>div{background:#162033!important}
+html.dark #login .inp,html.dark #login select{background-color:#0f1a2e!important}
+html.dark #login #lchips button{background:#0f1a2e}
