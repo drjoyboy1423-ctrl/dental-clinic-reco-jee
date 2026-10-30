@@ -10,7 +10,8 @@ const json = (b: unknown, s = 200) =>
 const fail = (m: string, s = 400) => json({ error: m }, s);
 
 const ROLES = ["admin", "manager", "doctor", "nurse", "reception"];
-const emailOf = (u: string) => `${u.toLowerCase()}@dental.app`;
+// Usernames are unique PER CLINIC: clinic staff sign in as <username>@<clinic>.dental.app, admins as <username>@dental.app.
+const emailOf = (u: string, clinic: string) => (!clinic || clinic === "all") ? `${u.toLowerCase()}@dental.app` : `${u.toLowerCase()}@${clinic.toLowerCase()}.dental.app`;
 const USERNAME = /^[a-zA-Z0-9_.-]{3,30}$/;
 const EDITABLE = ["name", "phone", "email", "title", "exp", "idcode", "blood", "expiry"];
 
@@ -64,7 +65,7 @@ Deno.serve(async (req) => {
       const cname = await clinicName(clinic);
       if (!cname) return fail("Choose a valid clinic.");
       const { data: created, error } = await sb.auth.admin.createUser({
-        email: emailOf(username), password, email_confirm: true,
+        email: emailOf(username, clinic), password, email_confirm: true,
       });
       if (error || !created.user) return fail(/already/i.test(error?.message || "") ? "Username already exists." : (error?.message || "Could not create user."));
       const row: Record<string, unknown> = {
@@ -97,12 +98,14 @@ Deno.serve(async (req) => {
       const cname = await clinicName(clinic);
       if (!cname) return fail("Choose a valid clinic.");
       patch.role = role; patch.clinic = clinic; patch.branch = cname;
-      if (body.username && body.username !== t.username) {
-        const nu = String(body.username).trim();
-        if (!USERNAME.test(nu)) return fail("Username must be 3-30 letters, numbers, dots, dashes or underscores.");
-        const { error } = await sb.auth.admin.updateUserById(t.id, { email: emailOf(nu) });
-        if (error) return fail(/already/i.test(error.message) ? "Username already exists." : error.message);
-        patch.username = nu;
+      {
+        const nu = body.username ? String(body.username).trim() : t.username;
+        if (nu !== t.username && !USERNAME.test(nu)) return fail("Username must be 3-30 letters, numbers, dots, dashes or underscores.");
+        if (nu !== t.username || clinic !== t.clinic) {
+          const { error } = await sb.auth.admin.updateUserById(t.id, { email: emailOf(nu, clinic) });
+          if (error) return fail(/already/i.test(error.message) ? "Username already exists in that clinic." : error.message);
+          patch.username = nu;
+        }
       }
       if (body.password) {
         if (String(body.password).length < 6) return fail("Password must be at least 6 characters.");

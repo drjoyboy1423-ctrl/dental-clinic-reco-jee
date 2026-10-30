@@ -30,10 +30,14 @@ Deno.serve(async (req) => {
     const origin = String(body.origin || "").replace(/\/+$/, "");
     const base = list.includes(origin) ? origin : list[0];
     const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!, { auth: { persistSession: false, autoRefreshToken: false } });
-    const { data: p } = await sb.from("profiles").select("id,name,email,username").ilike("username", username.replace(/[_%]/g, (c) => "\\" + c)).maybeSingle();
+    const clinic = String(body.clinic || "");
+    let q = sb.from("profiles").select("id,name,email,username,clinic").ilike("username", username.replace(/[_%]/g, (c) => "\\" + c));
+    q = (!clinic || clinic === "__hq") ? q.eq("clinic", "all") : q.eq("clinic", clinic);
+    const { data: p } = await q.maybeSingle();
     const to = String(p?.email || "").trim();
     if (!p || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)) { console.log("recover: no profile/email for", username); return json(OK); }
-    const { data: g, error } = await sb.auth.admin.generateLink({ type: "recovery", email: `${String(p.username).toLowerCase()}@dental.app` });
+    const { data: au } = await sb.auth.admin.getUserById(p.id);
+    const { data: g, error } = await sb.auth.admin.generateLink({ type: "recovery", email: au?.user?.email || `${String(p.username).toLowerCase()}@dental.app` });
     const th = g?.properties?.hashed_token;
     if (error || !th) { console.log("recover: generateLink failed", error?.message); return json(OK); }
     const link = `${base}/#recovery=${encodeURIComponent(th)}`;
