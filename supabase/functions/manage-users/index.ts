@@ -151,6 +151,17 @@ Deno.serve(async (req) => {
       return json({ ok: true, removed: (list ?? []).length });
     }
 
+    if (action === "archive_clinic") {
+      if (!isAdmin) return fail("Only an admin can archive a clinic.", 403);
+      const archive = !!body.archive;
+      const { data: list } = await sb.from("profiles").select("id").eq("clinic", String(body.clinic)).neq("role", "admin");
+      for (const u of list ?? []) {
+        const { error } = await sb.auth.admin.updateUserById(u.id, { ban_duration: archive ? "876000h" : "none" });
+        if (error) return fail(error.message);
+      }
+      return json({ ok: true, users: (list ?? []).length });
+    }
+
     return fail("Unknown action.");
   } catch (e) {
     return fail((e as Error).message || "Something went wrong.", 400);
