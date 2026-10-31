@@ -19,7 +19,7 @@ const DB=(()=>{
    if(del.length)ck(await sb.from('patients').delete().in('id',del.map(Number)))},
   async saveList(cid,kind,data){ck(await sb.from('clinic_lists').upsert({clinic:cid,kind,data,updated_at:new Date().toISOString()}))},
   async saveClinic(c){ck(await sb.from('clinics').upsert({id:c.id,name:c.name,type:c.type,color:c.color,icon:c.icon,logo:c.logo||null,name_am:c.name_am||null,phone:c.phone||null,address:c.address||null}))},
-  async deleteClinic(id){ck(await sb.from('clinics').delete().eq('id',id))},
+  async deleteClinic(id){ck(await sb.from('patients').delete().eq('clinic',id));ck(await sb.from('clinic_lists').delete().eq('clinic',id));ck(await sb.from('clinics').delete().eq('id',id))},
   async users(){return ck(await sb.from('profiles').select('*').order('created_at'))},
   async recoverRequest(username,clinic){const r=await fetch(SB_URL+'/functions/v1/recover-password',{method:'POST',headers:{'Content-Type':'application/json',apikey:SB_KEY,Authorization:'Bearer '+SB_KEY},body:JSON.stringify({username,clinic:clinic||'',origin:location.origin})});const j=await r.json().catch(()=>({}));if(!r.ok||j.error)throw new Error(j.error||'Could not send the email. Try again.');return j.message},
   async recoverApply(tokenHash,pw){const v=await sb.auth.verifyOtp({token_hash:tokenHash,type:'recovery'});if(v.error)throw new Error('This reset link is invalid or has expired. Request a new one.');const u=await sb.auth.updateUser({password:pw});if(u.error)throw new Error(u.error.message||'Could not set the password.');await sb.auth.signOut()},
