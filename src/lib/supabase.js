@@ -18,6 +18,7 @@ const DB=(()=>{
    await Promise.all(upd.map(async p=>ck(await sb.from('patients').update({data:p,updated_at:now}).eq('id',p.id))));
    if(del.length)ck(await sb.from('patients').delete().in('id',del.map(Number)))},
   async saveList(cid,kind,data){ck(await sb.from('clinic_lists').upsert({clinic:cid,kind,data,updated_at:new Date().toISOString()}))},
+  async audit(o){let q=sb.from('audit_log').select('*').order('at',{ascending:false}).limit(o.n||200);if(o.clinic)q=q.eq('clinic',o.clinic);if(o.tbl)q=q.eq('tbl',o.tbl);if(o.days)q=q.gte('at',new Date(Date.now()-o.days*864e5).toISOString());return ck(await q)},
   async setArchived(id,v){ck(await sb.from('clinics').update({archived:!!v}).eq('id',id))},
   async pageAll(q){const out=[];for(let i=0;;i+=1000){const r=ck(await q().range(i,i+999));out.push(...r);if(r.length<1000)break}return out},
   async backupClinic(cid){const c=ck(await sb.from('clinics').select('*').eq('id',cid).single()),p=await this.pageAll(()=>sb.from('patients').select('id,data').eq('clinic',cid).order('id')),l=ck(await sb.from('clinic_lists').select('kind,data').eq('clinic',cid)),u=ck(await sb.from('profiles').select('username,role,name,phone,email,title,exp,idcode,blood,expiry').eq('clinic',cid));return {format:'smartdent-clinic-backup',version:1,created:new Date().toISOString(),clinic:c,patients:p.map(x=>x.data),lists:l,staff:u}},
